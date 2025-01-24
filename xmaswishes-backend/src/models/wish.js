@@ -1,0 +1,9 @@
+const mongoose = require("mongoose");
+
+const wishSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  wishText: { type: String, required: true },
+  status: { type: String, default: "Formuliert" }
+});
+
+module.exports = mongoose.model("Wish", wishSchema);
