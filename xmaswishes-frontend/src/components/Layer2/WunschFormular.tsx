@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+
+import { CREATE_WISH } from "../../graphql/mutations";
 
 const WunschFormular: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -16,33 +19,31 @@ const WunschFormular: React.FC = () => {
     });
   };
 
+  const [createWish] = useMutation(CREATE_WISH);
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true); // Anfrage wird gestartet
-    setMessage(null); // Vorherige Nachrichten zurücksetzen
+    setIsSubmitting(true);
+    setMessage(null);
 
     try {
-      const response = await fetch('/api/wunsch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const { data } = await createWish({
+        variables: {
+          vorname: formData.vorname,
+          wunsch: formData.wunsch,
         },
-        body: JSON.stringify(formData),
       });
-
-      if (response.ok) {
-        setMessage('Dein Wunsch wurde erfolgreich gesendet!');
-        setFormData({ vorname: '', wunsch: '' }); // Formular zurücksetzen
-      } else {
-        setMessage('Etwas ist schiefgelaufen. Bitte versuche es erneut.');
-      }
+      setMessage('Dein Wunsch wurde erfolgreich gesendet!');
+      setFormData({ vorname: '', wunsch: '' });
     } catch (error) {
-      console.error('Fehler beim Senden:', error);
-      setMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
+      console.error(error);
+      setMessage('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
     } finally {
-      setIsSubmitting(false); // Anfrage beendet
+      setIsSubmitting(false);
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded-md shadow-md">
@@ -79,11 +80,10 @@ const WunschFormular: React.FC = () => {
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full inline-flex justify-center rounded-md py-2 px-4 font-medium shadow-sm ${
-          isSubmitting
+        className={`w-full inline-flex justify-center rounded-md py-2 px-4 font-medium shadow-sm ${isSubmitting
             ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
             : 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500'
-        }`}
+          }`}
       >
         {isSubmitting ? 'Wird gesendet...' : 'Abschicken'}
       </button>
