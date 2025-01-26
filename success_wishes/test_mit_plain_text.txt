@@ -1,0 +1,1 @@
+{"data":{"createWish":{"id":"6796a72332930ffd3570ee8f","name":"Max Mustermann","wishText":"Auto","status":"Formuliert"}}}

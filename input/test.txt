@@ -1,4 +1,0 @@
-{
-    "name": "John Doe",
-    "wishText": "Merry Christmas and a Happy New Year!"
-}

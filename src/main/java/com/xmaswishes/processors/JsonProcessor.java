@@ -14,6 +14,7 @@ public class JsonProcessor implements Processor {
 
         // Dummy-Daten extrahieren
         Map<String, Object> jsonMap = new HashMap<>();
+        System.out.println(content);
         String name = extractName(content);
         String wishText = extractWish(content);
         jsonMap.put("name", name);
@@ -30,13 +31,24 @@ public class JsonProcessor implements Processor {
     }
 
     private String extractName(String content) {
-        // Name aus dem Inhalt extrahieren (Dummy)
-        return "John Doe";
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> inputMap = mapper.readValue(content, Map.class);
+            return inputMap.getOrDefault("name", "Unknown");
+        } catch (Exception e) {
+            return "Unknown";
+        }
     }
 
     private String extractWish(String content) {
-        // Wunsch aus dem Inhalt extrahieren (Dummy)
-        return "I want a new bike!";
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> inputMap = mapper.readValue(content, Map.class);
+            return inputMap.getOrDefault("wishText", "No wish provided");
+        } catch (Exception e) {
+            return "No wish provided";
+        }
     }
+
 
 }
