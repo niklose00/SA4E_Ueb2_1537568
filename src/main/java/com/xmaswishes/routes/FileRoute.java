@@ -13,7 +13,7 @@ public class FileRoute extends RouteBuilder {
                 .handled(true);
 
         // Hauptroute
-        from("file:input?noop=true")
+        from("file:input?noop=true") // Dateien aus input lesen
                 .routeId("FileProcessingRoute")
                 .log("Neue Datei erkannt: ${header.CamelFileName}")
                 .process(new com.xmaswishes.processors.FileProcessor()) // Dateiinhalt lesen
@@ -28,10 +28,17 @@ public class FileRoute extends RouteBuilder {
                 .choice()
                 .when(header("CamelHttpResponseCode").isEqualTo(200))
                 .log("Wish erfolgreich erstellt: ${header.CamelFileName}")
-                .to("file:success_wishes")
+                .process(exchange -> {
+                    // API-Rückgabe in den Body setzen
+                    String response = exchange.getIn().getBody(String.class);
+                    String originalFileName = exchange.getIn().getHeader("CamelFileName", String.class);
+                    String newFileName = originalFileName.replaceFirst("\\.[^.]+$", ".txt"); // Ändere die Endung zu .txt
+                    exchange.getIn().setHeader("CamelFileName", newFileName); // Dateiname setzen
+                    exchange.getIn().setBody(response); // API-Antwort als Dateiinhalt setzen
+                })
+                .to("file:success_wishes") // Speichern als .txt in success
                 .otherwise()
                 .log(LoggingLevel.ERROR, "Fehler bei der API-Anfrage für Datei: ${header.CamelFileName}")
                 .to("file:error_wishes");
     }
-
 }
