@@ -12,18 +12,21 @@ public class JsonProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String content = exchange.getIn().getBody(String.class);
 
-
         // Dummy-Daten extrahieren
         Map<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("name", extractName(content));
-        jsonMap.put("wishText", extractWish(content));
+        String name = extractName(content);
+        String wishText = extractWish(content);
+        jsonMap.put("name", name);
+        jsonMap.put("wishText", wishText);
 
         // JSON erstellen
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(jsonMap);
-        System.out.println(json);
 
+        // Werte im Body und Header speichern
         exchange.getIn().setBody(json);
+        exchange.getIn().setHeader("name", name);
+        exchange.getIn().setHeader("wishText", wishText);
     }
 
     private String extractName(String content) {
@@ -35,4 +38,5 @@ public class JsonProcessor implements Processor {
         // Wunsch aus dem Inhalt extrahieren (Dummy)
         return "I want a new bike!";
     }
+
 }

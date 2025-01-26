@@ -9,36 +9,29 @@ public class FileRoute extends RouteBuilder {
         // Fehlerbehandlung
         onException(Exception.class)
                 .log(LoggingLevel.ERROR, "Fehler bei der Verarbeitung: ${exception.message}")
-                .to("file:error_wishes") // Fehlerhafte Dateien verschieben
+                .to("file:error_wishes")
                 .handled(true);
 
-        // Hauptroute zur Dateiverarbeitung
-        from("file:input?noop=true") // Eingangsverzeichnis überwachen
+        // Hauptroute
+        from("file:input?noop=true")
                 .routeId("FileProcessingRoute")
                 .log("Neue Datei erkannt: ${header.CamelFileName}")
                 .process(new com.xmaswishes.processors.FileProcessor()) // Dateiinhalt lesen
                 .process(new com.xmaswishes.processors.JsonProcessor()) // JSON-Transformation
                 .setHeader("Content-Type", constant("application/json")) // HTTP-Header setzen
                 .setBody().simple("""
-                    {
-                        "query": "mutation {
-                            createWish(name: \\\"John Doe\\\", wishText: \\\"Merry Christmas!\\\") {
-                                id
-                                name
-                                wishText
-                                status
-                            }
-                        }"
-                    }
-                """) // GraphQL-Payload erstellen
-
-                .to("http://localhost:4000/graphql") // HTTP-Komponente für API-Aufruf nutzen
+                {
+                    "query": "mutation { createWish(name: \\"${header.name}\\", wishText: \\"${header.wishText}\\") { id name wishText status } }"
+                }
+            """) // Dynamische GraphQL-Mutation
+                .to("http://localhost:4000/graphql") // HTTP-Aufruf
                 .choice()
                 .when(header("CamelHttpResponseCode").isEqualTo(200))
                 .log("Wish erfolgreich erstellt: ${header.CamelFileName}")
-                .to("file:success_wishes") // Erfolgreiche Dateien verschieben
+                .to("file:success_wishes")
                 .otherwise()
                 .log(LoggingLevel.ERROR, "Fehler bei der API-Anfrage für Datei: ${header.CamelFileName}")
-                .to("file:error_wishes"); // Fehlerhafte Dateien verschieben
+                .to("file:error_wishes");
     }
+
 }

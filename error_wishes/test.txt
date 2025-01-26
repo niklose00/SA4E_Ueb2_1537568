@@ -1,6 +1,6 @@
 {
         "query": "mutation {
-            createWish(name: \"John Doe\", wishText: \"Merry Christmas!\") {
+            createWish(name: \"John Doe\", wishText: \"I want a new bike!\") {
                 id
                 name
                 wishText
