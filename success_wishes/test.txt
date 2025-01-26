@@ -1,0 +1,1 @@
+{"data":{"createWish":{"id":"6795fc6f7afda2dbe49eaeb6","name":"test","wishText":"test","status":"Formuliert"}}}
