@@ -1,3 +1,0 @@
-{
-        "query": "mutation { createWish(name: \"pdf tester\", wishText: \"funktionieren\") { id name wishText status } }"
-    }
